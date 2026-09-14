@@ -110,17 +110,8 @@ def main():
     if run_delivery:
         from app.delivery import deliver_report
         
-        # If we didn't just build the report in memory, read it from disk
-        if not final_report:
-            latest_report_path = os.path.join(config.OUTPUT_DIR, "latest", "final_report.md")
-            if os.path.exists(latest_report_path):
-                with open(latest_report_path, "r", encoding="utf-8") as f:
-                    final_report = f.read()
-            else:
-                logging.error(f"Cannot deliver report: {latest_report_path} not found.")
-                return
-                
-        status = deliver_report(final_report, config)
+        latest_report_path = os.path.join(config.OUTPUT_DIR, "latest", "final_report.md")
+        status = deliver_report(latest_report_path, config)
         logging.info(f"Delivery status: {status}")
 
 if __name__ == "__main__":
