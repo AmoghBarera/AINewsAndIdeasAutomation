@@ -19,6 +19,107 @@ def _mock_provider(prompt: str, system_prompt: Optional[str]) -> str:
     import datetime
     today = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d")
     
+    # Check if this is the ideas prompt
+    if system_prompt and "10 unique" in system_prompt.lower():
+        return """### 1. ComplianceAgent API
+An AI tool that automatically checks SOC2 compliance documents against live AWS configurations.
+
+Problem:
+Companies spend hundreds of hours manually verifying that their cloud infrastructure matches their written compliance policies.
+
+Customer:
+B2B: Security/Compliance Officers at mid-market SaaS companies.
+
+Solution:
+A local-first AI agent that reads policy PDFs and queries AWS APIs to verify compliance without sending sensitive data to external LLMs.
+
+Why now:
+Recent open-source models (like Llama 3) allow for secure, on-premise document reasoning.
+
+Monetization:
+$500/month SaaS subscription.
+
+First 10 customers:
+Cold outreach to CTOs of YC startups that recently announced their seed rounds and need to get SOC2.
+
+Uniqueness angle:
+Local-first execution ensures zero data leakage, solving a major blocker for enterprises.
+
+Closest existing alternative:
+Vanta or Drata (which are generic and rely on manual evidence collection for edge cases).
+
+Why it is different:
+We use agentic workflows to handle the edge cases that Vanta cannot automate.
+
+News trend that inspired it:
+Recent releases of highly capable small open-source models for enterprise security.
+
+### 2. AutoTender
+An AI workflow automation tool that drafts public procurement bids for construction firms.
+
+Problem:
+Construction firms miss out on lucrative government contracts because responding to 500-page RFPs takes weeks.
+
+Customer:
+B2B: Mid-sized commercial construction firms.
+
+Solution:
+A customized RAG system that ingests past winning bids and automatically drafts compliant responses to new government RFPs.
+
+Why now:
+Context windows in models like Claude 3 or Gemini 1.5 have expanded enough to ingest entire historical bid libraries at once.
+
+Monetization:
+Per-bid fee ($1000) or high-ticket SaaS ($2k/mo).
+
+First 10 customers:
+Scraping government portals for recent contract winners and cold-emailing their VP of Sales.
+
+Uniqueness angle:
+Domain-specific fine-tuning on construction terminology and legal jargon.
+
+Closest existing alternative:
+Generic AI writing tools (ChatGPT) or expensive proposal consultants.
+
+Why it is different:
+Integrated directly into the procurement databases with deep domain-specific retrieval.
+
+News trend that inspired it:
+The expansion of LLM context windows to millions of tokens.
+
+### 3. GridPredict
+A predictive maintenance platform for aging municipal water infrastructure using edge AI.
+
+Problem:
+Municipalities lose millions of gallons of water to undetected pipe leaks before they become catastrophic failures.
+
+Customer:
+B2G: Local municipal water departments.
+
+Solution:
+Low-cost acoustic sensors deployed on pipes running edge AI to detect anomalies and predict leaks before they burst.
+
+Why now:
+Hardware optimized for edge AI is now cheap enough to deploy at scale, and models can run locally without cloud dependency.
+
+Monetization:
+Hardware + Software subscription (SaaS + IoT).
+
+First 10 customers:
+Local city councils in regions experiencing severe drought.
+
+Uniqueness angle:
+Hardware-software integration creating a proprietary data moat.
+
+Closest existing alternative:
+Manual acoustic surveys done once every 5 years.
+
+Why it is different:
+Continuous, real-time monitoring at a fraction of the manual labor cost.
+
+News trend that inspired it:
+The rise of "small language models" and edge AI hardware optimized for low power."""
+
     return f"""# Daily Tech & AI Brief — {today}
 
 ## Big Picture

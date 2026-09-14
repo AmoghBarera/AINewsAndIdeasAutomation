@@ -9,6 +9,7 @@ from app.collectors import collect_all_sources
 from app.filters import filter_and_rank
 from app.llm import generate_text
 from app.summary import generate_summary
+from app.ideas import generate_ideas
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 
@@ -36,9 +37,10 @@ def main():
         logging.error(f"Failed to load sources: {e}")
         return
 
-    run_collection = "--collect-only" in sys.argv or "--filter-only" in sys.argv or "--summary-only" in sys.argv
-    run_filter = "--filter-only" in sys.argv or "--summary-only" in sys.argv
+    run_collection = "--collect-only" in sys.argv or "--filter-only" in sys.argv or "--summary-only" in sys.argv or "--ideas-only" in sys.argv
+    run_filter = "--filter-only" in sys.argv or "--summary-only" in sys.argv or "--ideas-only" in sys.argv
     run_summary = "--summary-only" in sys.argv
+    run_ideas = "--ideas-only" in sys.argv
 
     if run_collection:
         logging.info("Running collection phase...")
@@ -74,6 +76,14 @@ def main():
                 print("\n--- GENERATED SUMMARY ---")
                 print(summary[:500] + "...\n[Truncated for console]")
                 print("-------------------------\n")
+                
+            if run_ideas:
+                logging.info("Running idea generation phase...")
+                ideas_text = generate_ideas(filtered_items, config)
+                logging.info(f"Ideas generated successfully. Length: {len(ideas_text)} chars.")
+                print("\n--- GENERATED IDEAS ---")
+                print(ideas_text[:500] + "...\n[Truncated for console]")
+                print("-----------------------\n")
                 
         return
 
