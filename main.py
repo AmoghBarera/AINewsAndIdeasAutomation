@@ -6,6 +6,7 @@ from dataclasses import asdict
 from app.config import load_config
 from app.sources import load_sources, get_enabled_sources
 from app.collectors import collect_all_sources
+from app.filters import filter_and_rank
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 
@@ -23,8 +24,8 @@ def main():
         logging.error(f"Failed to load sources: {e}")
         return
 
-    if "--collect-only" in sys.argv:
-        logging.info("Running in --collect-only mode")
+    if "--collect-only" in sys.argv or "--filter-only" in sys.argv:
+        logging.info("Running collection phase...")
         source_config = load_sources()
         items = collect_all_sources(source_config)
         
@@ -38,6 +39,20 @@ def main():
             json.dump(items_dict, f, indent=4)
         
         logging.info(f"Collected {len(items)} items and saved to {raw_out_path}")
+        
+        if "--filter-only" in sys.argv:
+            logging.info("Running filtering phase...")
+            filtered_items = filter_and_rank(items, config)
+            filtered_out_path = os.path.join(output_dir, "filtered_items.json")
+            
+            filtered_dict = [asdict(item) for item in filtered_items]
+            with open(filtered_out_path, "w", encoding="utf-8") as f:
+                json.dump(filtered_dict, f, indent=4)
+            
+            logging.info(f"Filtered and ranked down to {len(filtered_items)} items. Saved to {filtered_out_path}")
+            
+            for i, item in enumerate(filtered_items[:5]):
+                logging.info(f"Top {i+1}: [{item.score:.1f}] {item.title} ({item.source})")
         return
 
 if __name__ == "__main__":
