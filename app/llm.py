@@ -121,7 +121,7 @@ News trend that inspired it:
 The rise of "small language models" and edge AI hardware optimized for low power."""
 
     # Check if this is the critic prompt
-    if system_prompt and "venture analyst" in system_prompt.lower():
+    if system_prompt and "venture capitalist" in system_prompt.lower():
         # Just extract the raw ideas and append the mock note
         raw = prompt.replace("--- RAW IDEAS TO REVIEW AND IMPROVE ---\n\n", "")
         return raw + "\n\n*(Critic mode is mocked.)*"
