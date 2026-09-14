@@ -25,6 +25,7 @@ class Config:
     DRY_RUN: bool = False
     OUTPUT_DIR: str = "output"
     DATA_DIR: str = "data"
+    GENERATE_PDF: bool = False
 
 def load_config() -> Config:
     load_dotenv(override=True)
@@ -50,6 +51,7 @@ def load_config() -> Config:
         ENABLE_IDEA_CRITIC=os.getenv("ENABLE_IDEA_CRITIC", "true").lower() == "true",
         DRY_RUN=os.getenv("DRY_RUN", "false").lower() == "true",
         OUTPUT_DIR=os.getenv("OUTPUT_DIR", "output"),
-        DATA_DIR=os.getenv("DATA_DIR", "data")
+        DATA_DIR=os.getenv("DATA_DIR", "data"),
+        GENERATE_PDF=os.getenv("GENERATE_PDF", "false").lower() == "true"
     )
     return config

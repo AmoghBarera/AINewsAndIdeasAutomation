@@ -59,8 +59,41 @@ def build_final_report(summary_markdown: str, ideas_markdown: str, config: Confi
         src = os.path.join(latest_dir, artifact)
         dst = os.path.join(daily_dir, artifact)
         if os.path.exists(src):
+            import shutil
             shutil.copy2(src, dst)
             
     logger.info(f"Copied pipeline artifacts to {daily_dir}")
+    
+    # Optional PDF Generation
+    if config.GENERATE_PDF:
+        import subprocess
+        
+        pdf_daily_path = os.path.join(daily_dir, "final_report.pdf")
+        pdf_latest_path = os.path.join(latest_dir, "final_report.pdf")
+        
+        try:
+            # Check if pandoc is installed
+            subprocess.run(["pandoc", "--version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+            
+            # Generate PDF
+            logger.info("Pandoc found. Generating PDF...")
+            subprocess.run([
+                "pandoc", 
+                daily_report_path, 
+                "-o", pdf_daily_path,
+                "-V", "geometry:margin=1in"
+            ], check=True)
+            
+            # Copy to latest
+            import shutil
+            shutil.copy2(pdf_daily_path, pdf_latest_path)
+            
+            logger.info(f"PDF generated successfully at {pdf_daily_path}")
+        except FileNotFoundError:
+            logger.warning("Pandoc is not installed. Skipping PDF generation. Install Pandoc to enable this feature.")
+        except subprocess.CalledProcessError as e:
+            logger.warning(f"Pandoc failed to generate PDF: {e}")
+        except Exception as e:
+            logger.warning(f"Unexpected error during PDF generation: {e}")
     
     return final_report

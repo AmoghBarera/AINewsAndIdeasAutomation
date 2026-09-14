@@ -44,3 +44,16 @@ This repository includes a GitHub Actions workflow (`.github/workflows/daily-bri
 **Note on Timezones:**
 The GitHub Actions cron scheduler operates in **UTC** time. 
 For example, the default `0 9 * * *` runs at 9:00 AM UTC. If you want the brief delivered at 9:00 AM in your local timezone, you must convert your local time to UTC and update the cron string accordingly.
+
+## PDF Generation (Optional)
+
+You can generate a PDF version of the final report by enabling `GENERATE_PDF=true` in your `.env`.
+
+This feature uses a lightweight approach and requires **Pandoc** to be installed on your system.
+
+**To install Pandoc:**
+- **Windows**: `winget install pandoc`
+- **macOS**: `brew install pandoc`
+- **Linux (Ubuntu/Debian)**: `sudo apt-get install pandoc`
+
+If `GENERATE_PDF=true` but Pandoc is not found, the system will log a warning and continue gracefully without failing. To disable PDF generation, set `GENERATE_PDF=false`.
