@@ -37,22 +37,44 @@ def main():
         logging.error(f"Failed to load sources: {e}")
         return
 
+    if "--help" in sys.argv:
+        print("Usage: python main.py [OPTIONS]")
+        print("Options:")
+        print("  --help              Show this message and exit")
+        print("  --collect-only      Run only the collection phase")
+        print("  --filter-only       Run collection and filtering phases")
+        print("  --summary-only      Run collection, filtering, and summary phases")
+        print("  --ideas-only        Run collection, filtering, summary, and idea phases")
+        print("  --build-report-only Build report from existing files")
+        print("  --deliver-only      Deliver an existing report")
+        print("  --full              Run the full pipeline (default)")
+        print("  --dry-run           Do not send messages to delivery channels")
+        print("  --no-deliver        Run everything but skip delivery")
+        print("  --llm-test          Test the LLM connection")
+        return
+
+    if "--dry-run" in sys.argv:
+        config.DRY_RUN = True
+        logging.info("DRY_RUN enabled via CLI.")
+
     # Determine which phases to run
-    phase_flags = {"--collect-only", "--filter-only", "--summary-only", "--ideas-only", "--build-report-only", "--deliver-only"}
+    phase_flags = {"--collect-only", "--filter-only", "--summary-only", "--ideas-only", "--build-report-only", "--deliver-only", "--full"}
     has_phase_flag = any(flag in sys.argv for flag in phase_flags)
     
-    # If no phase flag is provided, or if --build-report-only is provided, run everything
-    run_full = not has_phase_flag or "--build-report-only" in sys.argv
+    # If no phase flag is provided, or if --full is provided, run everything
+    run_full = not has_phase_flag or "--full" in sys.argv
     
     run_collection = run_full or "--collect-only" in sys.argv or "--filter-only" in sys.argv or "--summary-only" in sys.argv or "--ideas-only" in sys.argv
     run_filter = run_full or "--filter-only" in sys.argv or "--summary-only" in sys.argv or "--ideas-only" in sys.argv
     run_summary = run_full or "--summary-only" in sys.argv
     run_ideas = run_full or "--ideas-only" in sys.argv
     run_report = run_full or "--build-report-only" in sys.argv
-    run_delivery = run_full or "--deliver-only" in sys.argv
+    run_delivery = (run_full or "--deliver-only" in sys.argv) and "--no-deliver" not in sys.argv
 
     # Shared state for the final report
     final_report = None
+    summary = ""
+    ideas_text = ""
     
     if run_collection:
         logging.info("Running collection phase...")
@@ -81,26 +103,46 @@ def main():
             
             logging.info(f"Filtered and ranked down to {len(filtered_items)} items. Saved to {filtered_out_path}")
             
+            llm_failed = False
+            
             if run_summary:
                 logging.info("Running summary generation phase...")
-                summary = generate_summary(filtered_items, config)
-                logging.info(f"Summary generated successfully. Length: {len(summary)} chars.")
+                try:
+                    summary = generate_summary(filtered_items, config)
+                    logging.info(f"Summary generated successfully. Length: {len(summary)} chars.")
+                except Exception as e:
+                    logging.error(f"Summary generation failed: {e}")
+                    summary = "LLM unavailable: automated fallback report only. Summary could not be generated."
+                    llm_failed = True
                 
             if run_ideas:
                 from app.history import get_previous_idea_titles, append_new_ideas_to_history
                 logging.info("Running idea generation phase...")
-                previous_ideas = get_previous_idea_titles(limit=50)
-                ideas_text = generate_ideas(filtered_items, config, previous_ideas=previous_ideas)
-                logging.info(f"Ideas generated successfully. Length: {len(ideas_text)} chars.")
-                
-                # Append to history
-                append_new_ideas_to_history(ideas_text)
+                if not llm_failed:
+                    try:
+                        previous_ideas = get_previous_idea_titles(limit=50)
+                        ideas_text = generate_ideas(filtered_items, config, previous_ideas=previous_ideas)
+                        logging.info(f"Ideas generated successfully. Length: {len(ideas_text)} chars.")
+                        
+                        # Append to history
+                        append_new_ideas_to_history(ideas_text)
+                    except Exception as e:
+                        logging.error(f"Idea generation failed: {e}")
+                        ideas_text = "LLM unavailable: automated fallback report only. Ideas could not be generated."
+                        llm_failed = True
+                else:
+                    ideas_text = "LLM unavailable: automated fallback report only. Ideas could not be generated."
                 
             if run_report:
                 from app.report import build_final_report
                 logging.info("Building final report...")
-                # If we skipped previous steps but ran report-only (e.g. from existing files), we'd need to read them, 
-                # but currently we tied run_report to run_full, so summary and ideas_text are guaranteed in scope.
+                
+                if llm_failed:
+                    # Create a basic report with just the titles of top items
+                    top_items_list = "\n".join([f"- [{item.title}]({item.url}) ({item.source_name})" for item in filtered_items[:10]])
+                    summary = "LLM unavailable: automated fallback report only.\n\n### Top News Items Today:\n" + top_items_list
+                    ideas_text = "*(Skipped due to LLM failure)*"
+                    
                 final_report = build_final_report(summary, ideas_text, config)
                 logging.info(f"Final report generated. Length: {len(final_report)} chars.")
                 print("\n--- FINAL REPORT (PREVIEW) ---")
@@ -111,8 +153,11 @@ def main():
         from app.delivery import deliver_report
         
         latest_report_path = os.path.join(config.OUTPUT_DIR, "latest", "final_report.md")
-        status = deliver_report(latest_report_path, config)
-        logging.info(f"Delivery status: {status}")
+        try:
+            status = deliver_report(latest_report_path, config)
+            logging.info(f"Delivery status: {status}")
+        except Exception as e:
+            logging.error(f"Delivery encountered an unexpected error: {e}")
 
 if __name__ == "__main__":
     main()
