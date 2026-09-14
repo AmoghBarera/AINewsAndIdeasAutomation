@@ -7,7 +7,7 @@ from app.report import build_final_report
 def test_config_loads():
     config = load_config()
     assert config is not None
-    assert hasattr(config, "LLM_PROVIDER")
+    assert hasattr(config, "GEMINI_API_KEY")
 
 def test_source_config_loads():
     sources = load_sources()

@@ -161,7 +161,7 @@ def main():
                 
                 if llm_failed:
                     # Create a basic report with just the titles of top items
-                    top_items_list = "\n".join([f"- [{item.title}]({item.url}) ({item.source_name})" for item in filtered_items[:10]])
+                    top_items_list = "\n".join([f"- [{item.title}]({item.url}) ({item.source})" for item in filtered_items[:10]])
                     summary = "LLM unavailable: automated fallback report only.\n\n### Top News Items Today:\n" + top_items_list
                     ideas_text = "*(Skipped due to LLM failure)*"
                     

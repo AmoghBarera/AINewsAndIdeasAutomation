@@ -49,7 +49,7 @@ def generate_summary(filtered_items: List[NewsItem], config: Config) -> str:
     logger.info(f"Initial summary word count: {word_count}")
     
     if word_count < 800 or word_count > 1300:
-        if config.LLM_PROVIDER.lower() != "mock":  # Don't retry in mock mode
+        if config.GEMINI_API_KEY or config.GROQ_API_KEY:  # Don't retry in mock mode
             logger.info("Summary word count outside target range. Adjusting...")
             adjustment_instruction = ""
             if word_count < 800:

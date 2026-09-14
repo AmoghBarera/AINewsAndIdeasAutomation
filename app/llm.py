@@ -11,7 +11,7 @@ GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/{model
 GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
 OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions"
 
-DEFAULT_GEMINI_MODEL = "gemini-1.5-flash"
+DEFAULT_GEMINI_MODEL = "gemini-3.1-pro"
 DEFAULT_GROQ_MODEL = "llama3-8b-8192"
 
 def _mock_provider(prompt: str, system_prompt: Optional[str]) -> str:
@@ -247,9 +247,15 @@ def _openrouter_provider(prompt: str, system_prompt: Optional[str], api_key: str
         raise ValueError("Invalid OpenRouter response format") from e
 
 LLM_CHAIN = [
+
+    {"provider": "gemini", "model": "gemini-3.1-pro-preview"},
+    {"provider": "gemini", "model": "gemini-3.8-flash"},
     {"provider": "gemini", "model": "gemini-3.7-flash"},
-    {"provider": "gemini", "model": "gemini-3.1-pro"},
-    {"provider": "groq", "model": "llama3-70b-8192"},
+    {"provider": "gemini", "model": "gemini-3.6-flash"},\
+    {"provider": "gemini", "model": "gemini-2.5-pro"},
+    {"provider": "gemini", "model": "gemini-3.5-flash"},
+    {"provider": "gemini", "model": "gemini-3.5-flash-lite"},
+    {"provider": "groq", "model": "openai/gpt-oss-120b"},
 ]
 
 def generate_text(
