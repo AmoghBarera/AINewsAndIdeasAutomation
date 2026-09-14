@@ -38,7 +38,7 @@ def main():
         return
 
     # Determine which phases to run
-    phase_flags = {"--collect-only", "--filter-only", "--summary-only", "--ideas-only", "--build-report-only"}
+    phase_flags = {"--collect-only", "--filter-only", "--summary-only", "--ideas-only", "--build-report-only", "--deliver-only"}
     has_phase_flag = any(flag in sys.argv for flag in phase_flags)
     
     # If no phase flag is provided, or if --build-report-only is provided, run everything
@@ -49,7 +49,11 @@ def main():
     run_summary = run_full or "--summary-only" in sys.argv
     run_ideas = run_full or "--ideas-only" in sys.argv
     run_report = run_full or "--build-report-only" in sys.argv
+    run_delivery = run_full or "--deliver-only" in sys.argv
 
+    # Shared state for the final report
+    final_report = None
+    
     if run_collection:
         logging.info("Running collection phase...")
         source_config = load_sources()
@@ -103,7 +107,21 @@ def main():
                 print(final_report[:500] + "...\n[Truncated for console]")
                 print("------------------------------\n")
                 
-        return
+    if run_delivery:
+        from app.delivery import deliver_report
+        
+        # If we didn't just build the report in memory, read it from disk
+        if not final_report:
+            latest_report_path = os.path.join(config.OUTPUT_DIR, "latest", "final_report.md")
+            if os.path.exists(latest_report_path):
+                with open(latest_report_path, "r", encoding="utf-8") as f:
+                    final_report = f.read()
+            else:
+                logging.error(f"Cannot deliver report: {latest_report_path} not found.")
+                return
+                
+        status = deliver_report(final_report, config)
+        logging.info(f"Delivery status: {status}")
 
 if __name__ == "__main__":
     main()
