@@ -7,6 +7,7 @@ from app.config import load_config
 from app.sources import load_sources, get_enabled_sources
 from app.collectors import collect_all_sources
 from app.filters import filter_and_rank
+from app.llm import generate_text
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 
@@ -15,6 +16,16 @@ def main():
     config = load_config()
     logging.info(f"Configuration loaded. Provider: {config.LLM_PROVIDER}")
     
+    if "--llm-test" in sys.argv:
+        logging.info("Running LLM test...")
+        test_prompt = "Write a 3-sentence summary of the latest AI trends."
+        test_system = "You are a helpful AI assistant."
+        result = generate_text(prompt=test_prompt, system_prompt=test_system)
+        print("\n--- LLM TEST RESULT ---")
+        print(result)
+        print("-----------------------\n")
+        return
+
     try:
         sources_info = get_enabled_sources()
         logging.info(f"Sources loaded. Active feeds/types: {sources_info['total_rss_feeds']} RSS, "
