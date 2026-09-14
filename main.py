@@ -78,9 +78,15 @@ def main():
                 print("-------------------------\n")
                 
             if run_ideas:
+                from app.history import get_previous_idea_titles, append_new_ideas_to_history
                 logging.info("Running idea generation phase...")
-                ideas_text = generate_ideas(filtered_items, config)
+                previous_ideas = get_previous_idea_titles(limit=50)
+                ideas_text = generate_ideas(filtered_items, config, previous_ideas=previous_ideas)
                 logging.info(f"Ideas generated successfully. Length: {len(ideas_text)} chars.")
+                
+                # Append to history
+                append_new_ideas_to_history(ideas_text)
+                
                 print("\n--- GENERATED IDEAS ---")
                 print(ideas_text[:500] + "...\n[Truncated for console]")
                 print("-----------------------\n")
