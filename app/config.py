@@ -21,6 +21,7 @@ class Config:
     SUMMARY_WORDS_MIN: int = 900
     SUMMARY_WORDS_MAX: int = 1100
     IDEA_COUNT: int = 10
+    ENABLE_IDEA_CRITIC: bool = True
     DRY_RUN: bool = False
     OUTPUT_DIR: str = "output"
     DATA_DIR: str = "data"
@@ -46,6 +47,7 @@ def load_config() -> Config:
         SUMMARY_WORDS_MIN=int(os.getenv("SUMMARY_WORDS_MIN", 900)),
         SUMMARY_WORDS_MAX=int(os.getenv("SUMMARY_WORDS_MAX", 1100)),
         IDEA_COUNT=int(os.getenv("IDEA_COUNT", 10)),
+        ENABLE_IDEA_CRITIC=os.getenv("ENABLE_IDEA_CRITIC", "true").lower() == "true",
         DRY_RUN=os.getenv("DRY_RUN", "false").lower() == "true",
         OUTPUT_DIR=os.getenv("OUTPUT_DIR", "output"),
         DATA_DIR=os.getenv("DATA_DIR", "data")

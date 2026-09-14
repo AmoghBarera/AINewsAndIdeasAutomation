@@ -36,13 +36,21 @@ def generate_ideas(filtered_items: List[NewsItem], config: Config, previous_idea
             
     user_prompt = "\n".join(payload_lines)
     
-    logger.info("Generating ideas...")
+    logger.info("Generating raw ideas...")
     ideas_text = generate_text(
         prompt=user_prompt,
         system_prompt=system_prompt,
         temperature=0.8,
         max_tokens=4000
     )
+    
+    # 2. Run the critic if enabled
+    if config.ENABLE_IDEA_CRITIC:
+        from app.critic import improve_ideas
+        logger.info("Running idea critic to improve uniqueness...")
+        ideas_text = improve_ideas(ideas_text, config)
+    else:
+        logger.info("Idea critic is disabled in config. Skipping.")
     
     # Save the output
     output_dir = os.path.join(config.OUTPUT_DIR, "latest")
