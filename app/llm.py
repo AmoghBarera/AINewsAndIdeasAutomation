@@ -16,20 +16,38 @@ DEFAULT_GROQ_MODEL = "llama3-8b-8192"
 
 def _mock_provider(prompt: str, system_prompt: Optional[str]) -> str:
     """Mock LLM response for local testing."""
-    preview = truncate_text(prompt, 100)
-    return (
-        "### MOCK LLM OUTPUT ###\n\n"
-        "This is a mocked response because no LLM API key was provided or 'mock' was explicitly selected.\n\n"
-        "**Received System Prompt:**\n"
-        f"{system_prompt or 'None'}\n\n"
-        "**Received User Prompt (Preview):**\n"
-        f"{preview}\n\n"
-        "**Mock Tech Summary:**\n"
-        "AI continues to advance. New LLMs are being released with better reasoning capabilities.\n"
-        "Startups are finding niches in vertical SaaS using these models.\n\n"
-        "**Mock Idea:**\n"
-        "1. ComplianceAgent: An AI tool that automatically checks SOC2 compliance documents against live AWS configurations."
-    )
+    import datetime
+    today = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d")
+    
+    return f"""# Daily Tech & AI Brief — {today}
+
+## Big Picture
+The tech industry is seeing rapid advancements in AI models and agentic frameworks. Startups are increasingly focusing on vertical applications rather than foundational models, seeking product-market fit in specialized niches. Meanwhile, open-source communities are releasing tools that rival proprietary systems in specific benchmarks.
+
+## Top Developments
+1. Several major tech firms announced updates to their foundational language models, citing improvements in reasoning and context windows.
+2. A new wave of AI startups secured funding rounds, emphasizing the shift toward applied AI in healthcare and finance.
+
+## Models, Products, and Launches
+- **ComplianceAgent**: A new tool that automatically checks SOC2 compliance documents against live AWS configurations.
+- **DataStream Pro**: A framework for ingesting real-time data into vector databases for RAG applications.
+
+## Research and Breakthroughs
+- A recent paper demonstrated a novel approach to reducing hallucination rates in LLMs by 30% using verifiable fact-checking loops.
+- Researchers open-sourced a new benchmark for evaluating the safety of autonomous agents.
+
+## Business, Funding, and Regulation
+- A prominent AI safety startup raised $50M in Series B funding.
+- Regulators in the EU published new guidelines on data privacy concerning generative AI models.
+
+## Open Source and Developer Tools
+- **AgentKit**: A new open-source library for building multi-agent systems gained massive traction on GitHub.
+- Developers praised a new fast inference engine for running large models on consumer GPUs.
+
+## What To Watch
+1. The ongoing debate over copyright and training data usage.
+2. The rise of "small language models" optimized for edge devices.
+3. Increasing regulatory scrutiny on AI agents that can execute financial transactions."""
 
 def _gemini_provider(prompt: str, system_prompt: Optional[str], api_key: str, model: str, temperature: float, max_tokens: int) -> str:
     if not model:
