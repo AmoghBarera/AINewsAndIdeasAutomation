@@ -16,6 +16,16 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(me
 def main():
     print("Daily Tech & AI Opportunity Brief")
     config = load_config()
+    
+    # Setup file logging
+    os.makedirs(os.path.join(config.OUTPUT_DIR, "latest"), exist_ok=True)
+    log_file = os.path.join(config.OUTPUT_DIR, "latest", "run.log")
+    file_handler = logging.FileHandler(log_file, mode='a', encoding='utf-8')
+    file_handler.setFormatter(logging.Formatter("%(asctime)s [%(levelname)s] %(message)s"))
+    logging.getLogger().addHandler(file_handler)
+    
+    logging.info("==========================================")
+    logging.info("Starting new run of Daily Tech & AI Brief")
     logging.info(f"Configuration loaded. Provider: {config.LLM_PROVIDER}")
     
     if "--llm-test" in sys.argv:

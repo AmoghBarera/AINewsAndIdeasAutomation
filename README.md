@@ -60,6 +60,14 @@ To send the Daily Brief via Gmail, you must use a **Gmail App Password** rather 
    - `EMAIL_FROM` = your full gmail address
    - `EMAIL_TO` = the destination email address (can be the same as your sending address)
 
+## Makefile Commands
+
+If you have `make` installed, you can use these shortcuts:
+- `make setup`: Installs dependencies.
+- `make run`: Runs the full pipeline.
+- `make dry-run`: Runs the pipeline without sending emails.
+- `make test`: Runs the test suite (requires `pytest`).
+
 ## PDF Generation (Optional)
 
 You can generate a PDF version of the final report by enabling `GENERATE_PDF=true` in your `.env`.
@@ -72,3 +80,10 @@ This feature uses a lightweight approach and requires **Pandoc** to be installed
 - **Linux (Ubuntu/Debian)**: `sudo apt-get install pandoc`
 
 If `GENERATE_PDF=true` but Pandoc is not found, the system will log a warning and continue gracefully without failing. To disable PDF generation, set `GENERATE_PDF=false`.
+
+## Troubleshooting
+
+- **No Email Received**: Check `output/latest/run.log` for SMTP errors. Ensure your Gmail App Password is correct and has no spaces.
+- **LLM Fails / Fallback Report Triggered**: Check if your `LLM_API_KEY` is correct and has sufficient credits. The system will automatically generate a fallback report with just links if the LLM is unreachable.
+- **Sources Not Loading**: Check if `sources.json` is formatted as valid JSON.
+- **Rate Limits**: The system includes automatic backoffs and rate limit delays. If a specific source (like Reddit) blocks you, the system will skip it and continue collecting from the others.

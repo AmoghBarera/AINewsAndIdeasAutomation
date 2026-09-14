@@ -238,10 +238,33 @@ def collect_arxiv(config: SourceConfig) -> List[NewsItem]:
 def collect_all_sources(config: SourceConfig) -> List[NewsItem]:
     """Collects news items from all enabled sources."""
     all_items: List[NewsItem] = []
-    all_items.extend(collect_rss_sources(config))
-    all_items.extend(collect_hacker_news(config))
-    all_items.extend(collect_reddit(config))
-    all_items.extend(collect_arxiv(config))
     
+    if config.rss:
+        try:
+            all_items.extend(collect_rss_sources(config))
+        except Exception as e:
+            logger.warning(f"Failed to collect RSS sources: {e}")
+        time.sleep(1)
+        
+    if config.hacker_news:
+        try:
+            all_items.extend(collect_hacker_news(config))
+        except Exception as e:
+            logger.warning(f"Failed to collect Hacker News: {e}")
+        time.sleep(1)
+        
+    if config.reddit:
+        try:
+            all_items.extend(collect_reddit(config))
+        except Exception as e:
+            logger.warning(f"Failed to collect Reddit: {e}")
+        time.sleep(1)
+            
+    if config.arxiv:
+        try:
+            all_items.extend(collect_arxiv(config))
+        except Exception as e:
+            logger.warning(f"Failed to collect arXiv: {e}")
+        
     logger.info(f"Total raw items collected: {len(all_items)}")
     return all_items

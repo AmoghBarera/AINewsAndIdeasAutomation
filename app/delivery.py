@@ -59,17 +59,24 @@ def send_email_message(report_text: str, report_path: str, config: Config) -> bo
             file_name = os.path.basename(pdf_path)
             msg.add_attachment(file_data, maintype='application', subtype='pdf', filename=file_name)
 
-    # Send the email
-    try:
-        with smtplib.SMTP(config.SMTP_HOST, config.SMTP_PORT) as server:
-            server.starttls()
-            server.login(config.SMTP_USERNAME, config.SMTP_PASSWORD)
-            server.send_message(msg)
-        logger.info("Email sent successfully.")
-        return True
-    except Exception as e:
-        logger.error(f"Failed to send email: {e}")
-        return False
+    # Send the email with 1 retry
+    import time
+    for attempt in range(2):
+        try:
+            with smtplib.SMTP(config.SMTP_HOST, config.SMTP_PORT, timeout=15) as server:
+                server.starttls()
+                server.login(config.SMTP_USERNAME, config.SMTP_PASSWORD)
+                server.send_message(msg)
+            logger.info("Email sent successfully.")
+            return True
+        except Exception as e:
+            if attempt == 0:
+                logger.warning(f"Failed to send email (attempt 1): {e}. Retrying in 5 seconds...")
+                time.sleep(5)
+            else:
+                logger.error(f"Failed to send email after retries: {e}")
+                return False
+    return False
 
 def deliver_report(report_path: str, config: Config) -> Dict[str, bool]:
     """Deliver the report via configured channels."""
