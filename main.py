@@ -37,10 +37,18 @@ def main():
         logging.error(f"Failed to load sources: {e}")
         return
 
-    run_collection = "--collect-only" in sys.argv or "--filter-only" in sys.argv or "--summary-only" in sys.argv or "--ideas-only" in sys.argv
-    run_filter = "--filter-only" in sys.argv or "--summary-only" in sys.argv or "--ideas-only" in sys.argv
-    run_summary = "--summary-only" in sys.argv
-    run_ideas = "--ideas-only" in sys.argv
+    # Determine which phases to run
+    phase_flags = {"--collect-only", "--filter-only", "--summary-only", "--ideas-only", "--build-report-only"}
+    has_phase_flag = any(flag in sys.argv for flag in phase_flags)
+    
+    # If no phase flag is provided, or if --build-report-only is provided, run everything
+    run_full = not has_phase_flag or "--build-report-only" in sys.argv
+    
+    run_collection = run_full or "--collect-only" in sys.argv or "--filter-only" in sys.argv or "--summary-only" in sys.argv or "--ideas-only" in sys.argv
+    run_filter = run_full or "--filter-only" in sys.argv or "--summary-only" in sys.argv or "--ideas-only" in sys.argv
+    run_summary = run_full or "--summary-only" in sys.argv
+    run_ideas = run_full or "--ideas-only" in sys.argv
+    run_report = run_full or "--build-report-only" in sys.argv
 
     if run_collection:
         logging.info("Running collection phase...")
@@ -73,9 +81,6 @@ def main():
                 logging.info("Running summary generation phase...")
                 summary = generate_summary(filtered_items, config)
                 logging.info(f"Summary generated successfully. Length: {len(summary)} chars.")
-                print("\n--- GENERATED SUMMARY ---")
-                print(summary[:500] + "...\n[Truncated for console]")
-                print("-------------------------\n")
                 
             if run_ideas:
                 from app.history import get_previous_idea_titles, append_new_ideas_to_history
@@ -87,9 +92,16 @@ def main():
                 # Append to history
                 append_new_ideas_to_history(ideas_text)
                 
-                print("\n--- GENERATED IDEAS ---")
-                print(ideas_text[:500] + "...\n[Truncated for console]")
-                print("-----------------------\n")
+            if run_report:
+                from app.report import build_final_report
+                logging.info("Building final report...")
+                # If we skipped previous steps but ran report-only (e.g. from existing files), we'd need to read them, 
+                # but currently we tied run_report to run_full, so summary and ideas_text are guaranteed in scope.
+                final_report = build_final_report(summary, ideas_text, config)
+                logging.info(f"Final report generated. Length: {len(final_report)} chars.")
+                print("\n--- FINAL REPORT (PREVIEW) ---")
+                print(final_report[:500] + "...\n[Truncated for console]")
+                print("------------------------------\n")
                 
         return
 
