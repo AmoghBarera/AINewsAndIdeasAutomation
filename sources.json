@@ -1,1 +1,58 @@
-{}
+{
+  "rss": [
+    {
+      "name": "TechCrunch AI",
+      "url": "https://techcrunch.com/category/artificial-intelligence/feed/",
+      "enabled": true,
+      "weight": 5
+    },
+    {
+      "name": "VentureBeat AI",
+      "url": "https://venturebeat.com/category/ai/feed/",
+      "enabled": true,
+      "weight": 5
+    },
+    {
+      "name": "MIT Technology Review AI",
+      "url": "https://www.technologyreview.com/topic/artificial-intelligence/feed/",
+      "enabled": true,
+      "weight": 5
+    },
+    {
+      "name": "Ars Technica",
+      "url": "https://feeds.arstechnica.com/arstechnica/index",
+      "enabled": true,
+      "weight": 4
+    },
+    {
+      "name": "Hugging Face Blog",
+      "url": "https://huggingface.co/blog/feed.xml",
+      "enabled": true,
+      "weight": 4
+    },
+    {
+      "name": "Google AI Blog",
+      "url": "http://feeds.feedburner.com/blogspot/gDGdt",
+      "enabled": true,
+      "weight": 4
+    }
+  ],
+  "hacker_news": {
+    "enabled": true,
+    "queries": ["AI", "LLM", "machine learning", "startup"],
+    "limit": 30,
+    "weight": 4
+  },
+  "reddit": {
+    "enabled": true,
+    "subreddits": ["artificial", "MachineLearning", "technology"],
+    "limit": 15,
+    "weight": 3
+  },
+  "arxiv": {
+    "enabled": true,
+    "categories": ["cs.AI", "cs.LG", "cs.CL"],
+    "limit": 20,
+    "weight": 2
+  }
+}
