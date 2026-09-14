@@ -15,8 +15,8 @@ def test_source_config_loads():
     assert hasattr(sources, "rss")
     
 def test_mock_llm_returns_text():
-    # Force mock provider
-    result = generate_text("Test prompt", provider="mock")
+    # It will fallback to mock if no keys are found
+    result = generate_text("Test prompt")
     assert isinstance(result, str)
     assert len(result) > 0
 

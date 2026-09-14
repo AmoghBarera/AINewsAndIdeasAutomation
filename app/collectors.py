@@ -141,11 +141,16 @@ def collect_reddit(config: SourceConfig) -> List[NewsItem]:
     logger.info("Fetching Reddit")
     reddit_config = config.reddit
     
+    # Reddit aggressively blocks generic bots, so we use a more standard browser-like string
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    }
+    
     for subreddit in reddit_config.subreddits:
         url = f"https://www.reddit.com/r/{subreddit}/top.json"
         params = {"t": "day", "limit": reddit_config.limit}
         
-        response = fetch_with_retry(url, params=params)
+        response = fetch_with_retry(url, headers=headers, params=params)
         if not response:
             logger.warning(f"Failed to fetch Reddit r/{subreddit}")
             continue
@@ -192,11 +197,17 @@ def collect_arxiv(config: SourceConfig) -> List[NewsItem]:
     
     # Construct query: cat:cs.AI OR cat:cs.LG ...
     query_parts = [f"cat:{cat}" for cat in arxiv_config.categories]
-    search_query = "+OR+".join(query_parts)
+    search_query = " OR ".join(query_parts)
     
-    url = f"http://export.arxiv.org/api/query?search_query={search_query}&sortBy=submittedDate&sortOrder=desc&max_results={arxiv_config.limit}"
+    url = "https://export.arxiv.org/api/query"
+    params = {
+        "search_query": search_query,
+        "sortBy": "submittedDate",
+        "sortOrder": "desc",
+        "max_results": arxiv_config.limit
+    }
     
-    response = fetch_with_retry(url)
+    response = fetch_with_retry(url, params=params)
     if not response:
         logger.warning("Failed to fetch arXiv")
         return items

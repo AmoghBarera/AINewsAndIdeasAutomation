@@ -26,7 +26,6 @@ def main():
     
     logging.info("==========================================")
     logging.info("Starting new run of Daily Tech & AI Brief")
-    logging.info(f"Configuration loaded. Provider: {config.LLM_PROVIDER}")
     
     if "--llm-test" in sys.argv:
         logging.info("Running LLM test...")

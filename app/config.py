@@ -4,9 +4,8 @@ from dotenv import load_dotenv
 
 @dataclass
 class Config:
-    LLM_PROVIDER: str = "mock"
-    LLM_API_KEY: str = ""
-    LLM_MODEL: str = ""
+    GEMINI_API_KEY: str | None = None
+    GROQ_API_KEY: str | None = None
     # Telegram config (Legacy)
     TELEGRAM_BOT_TOKEN: str | None = None
     TELEGRAM_CHAT_ID: str | None = None
@@ -36,9 +35,8 @@ def load_config() -> Config:
     load_dotenv(override=True)
     
     config = Config(
-        LLM_PROVIDER=os.getenv("LLM_PROVIDER", "mock"),
-        LLM_API_KEY=os.getenv("LLM_API_KEY"),
-        LLM_MODEL=os.getenv("LLM_MODEL"),
+        GEMINI_API_KEY=os.getenv("GEMINI_API_KEY"),
+        GROQ_API_KEY=os.getenv("GROQ_API_KEY"),
         # Legacy Telegram
         TELEGRAM_BOT_TOKEN=os.getenv("TELEGRAM_BOT_TOKEN"),
         TELEGRAM_CHAT_ID=os.getenv("TELEGRAM_CHAT_ID"),

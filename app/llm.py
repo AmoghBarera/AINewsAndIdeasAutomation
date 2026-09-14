@@ -246,56 +246,52 @@ def _openrouter_provider(prompt: str, system_prompt: Optional[str], api_key: str
         logger.error(f"Failed to parse OpenRouter response: {data}")
         raise ValueError("Invalid OpenRouter response format") from e
 
+LLM_CHAIN = [
+    {"provider": "gemini", "model": "gemini-3.7-flash"},
+    {"provider": "gemini", "model": "gemini-3.1-pro"},
+    {"provider": "groq", "model": "llama3-70b-8192"},
+]
+
 def generate_text(
     prompt: str,
     system_prompt: Optional[str] = None,
-    provider: Optional[str] = None,
-    model: Optional[str] = None,
     temperature: float = 0.4,
     max_tokens: int = 2500
 ) -> str:
-    """Generate text using the configured LLM provider."""
+    """Generate text using the configured LLM provider fallback chain."""
     config = load_config()
     
-    provider = (provider or config.LLM_PROVIDER or "mock").lower()
-    api_key = config.LLM_API_KEY
-    model = model or config.LLM_MODEL
-    
-    # Fallback to mock if API key is missing and provider is not mock
-    if provider != "mock" and not api_key:
-        logger.warning(f"No API key provided for {provider}. Falling back to 'mock' provider.")
-        provider = "mock"
+    for step_index, step in enumerate(LLM_CHAIN):
+        provider = step["provider"]
+        model = step["model"]
         
-    logger.info(f"Generating text using provider: {provider}, model: {model or 'default'}")
-    
-    retries = 1
-    for attempt in range(retries + 1):
+        # Check for API key
+        api_key = None
+        if provider == "gemini":
+            api_key = config.GEMINI_API_KEY
+        elif provider == "groq":
+            api_key = config.GROQ_API_KEY
+            
+        if not api_key:
+            logger.warning(f"Step {step_index + 1}: Skipping {provider} ({model}) - missing API key in environment.")
+            continue
+            
+        logger.info(f"Step {step_index + 1}: Attempting generation with {provider} ({model})...")
+        
         try:
             if provider == "gemini":
                 return _gemini_provider(prompt, system_prompt, api_key, model, temperature, max_tokens)
             elif provider == "groq":
                 return _groq_provider(prompt, system_prompt, api_key, model, temperature, max_tokens)
-            elif provider == "openrouter":
-                return _openrouter_provider(prompt, system_prompt, api_key, model, temperature, max_tokens)
-            elif provider == "mock":
-                return _mock_provider(prompt, system_prompt)
-            else:
-                logger.warning(f"Unknown provider: {provider}. Falling back to 'mock'.")
-                return _mock_provider(prompt, system_prompt)
-                
         except requests.exceptions.HTTPError as e:
             status_code = e.response.status_code if e.response else None
-            # Don't retry on auth errors or bad requests
-            if status_code in (400, 401, 403, 404):
-                logger.error(f"Client error from {provider} API: {e}")
-                return f"Error: Failed to generate text due to client error ({status_code})."
-                
-            logger.warning(f"Transient error from {provider} (Attempt {attempt+1}): {e}")
-            if attempt < retries:
-                time.sleep(5)
-            else:
-                logger.error(f"Failed to generate text after retries.")
-                return f"Error: Failed to generate text after retries."
+            logger.warning(f"Model {model} failed with HTTP {status_code}: {e}. Trying next in chain...")
+        except requests.exceptions.Timeout as e:
+            logger.warning(f"Model {model} timed out: {e}. Trying next in chain...")
         except Exception as e:
-            logger.error(f"Unexpected error generating text with {provider}: {e}")
-            return f"Error: An unexpected error occurred."
+            logger.warning(f"Model {model} encountered an unexpected error: {e}. Trying next in chain...")
+            
+    # If the entire chain fails or is skipped, fallback to mock if possible
+    logger.error("All models in the LLM chain failed or lacked API keys.")
+    logger.info("Falling back to 'mock' provider as a last resort.")
+    return _mock_provider(prompt, system_prompt)

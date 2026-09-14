@@ -9,9 +9,8 @@ on:
 
 env:
   DRY_RUN: false
-  LLM_PROVIDER: ${{ secrets.LLM_PROVIDER }}
-  LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
-  LLM_MODEL: ${{ secrets.LLM_MODEL }}
+  GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+  GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
   
   EMAIL_ENABLED: ${{ secrets.EMAIL_ENABLED || 'true' }}
   EMAIL_PROVIDER: ${{ secrets.EMAIL_PROVIDER || 'gmail' }}
