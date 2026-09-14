@@ -36,3 +36,11 @@ Run the application locally. It defaults to the mock LLM if keys are omitted.
 ```bash
 python main.py
 ```
+
+## GitHub Actions Automation
+
+This repository includes a GitHub Actions workflow (`.github/workflows/daily-brief.yml`) that runs the pipeline on a schedule.
+
+**Note on Timezones:**
+The GitHub Actions cron scheduler operates in **UTC** time. 
+For example, the default `0 9 * * *` runs at 9:00 AM UTC. If you want the brief delivered at 9:00 AM in your local timezone, you must convert your local time to UTC and update the cron string accordingly.

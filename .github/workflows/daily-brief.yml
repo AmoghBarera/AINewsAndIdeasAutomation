@@ -1,0 +1,63 @@
+name: Daily Tech & AI Brief
+
+on:
+  schedule:
+    # Runs every day at 09:00 UTC
+    - cron: '0 9 * * *'
+  workflow_dispatch:
+    # Allows manual triggering
+
+env:
+  DRY_RUN: false
+  LLM_PROVIDER: ${{ secrets.LLM_PROVIDER }}
+  LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+  LLM_MODEL: ${{ secrets.LLM_MODEL }}
+  TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+  TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+  # Optional Email Delivery config, leaving blank gracefully skips email
+  EMAIL_ENABLED: ${{ secrets.EMAIL_ENABLED || 'false' }}
+  SMTP_HOST: ${{ secrets.SMTP_HOST }}
+  SMTP_PORT: ${{ secrets.SMTP_PORT || '587' }}
+  SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
+  SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+  EMAIL_TO: ${{ secrets.EMAIL_TO }}
+  EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
+
+jobs:
+  build-and-deliver:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Display run information
+        run: |
+          echo "Python version:"
+          python --version
+          echo "Date:"
+          date -u
+          echo "Output folder will be created at: ./output/"
+          
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          
+      - name: Run Full Pipeline
+        run: |
+          python main.py
+          
+      - name: Upload Output Artifact
+        uses: actions/upload-artifact@v4
+        if: always() # Upload even if the script partially fails
+        with:
+          name: daily-brief-output
+          path: output/
+          retention-days: 7
