@@ -46,11 +46,24 @@ def main():
         print("  --summary-only      Run collection, filtering, and summary phases")
         print("  --ideas-only        Run collection, filtering, summary, and idea phases")
         print("  --build-report-only Build report from existing files")
-        print("  --deliver-only      Deliver an existing report")
+        print("  --deliver-only      Deliver an existing report via Email")
+        print("  --send-test-email   Send a test email to verify SMTP settings")
         print("  --full              Run the full pipeline (default)")
-        print("  --dry-run           Do not send messages to delivery channels")
-        print("  --no-deliver        Run everything but skip delivery")
+        print("  --dry-run           Do not send emails (logs instead)")
+        print("  --no-deliver        Run everything but skip email delivery")
         print("  --llm-test          Test the LLM connection")
+        return
+
+    if "--send-test-email" in sys.argv:
+        from app.delivery import send_email_message
+        logging.info("Running Email delivery test...")
+        test_text = "# Test Email\n\nThis is a test of the Daily Tech & AI Brief email delivery system."
+        test_path = "tests/test_smoke.py" # just a dummy path to test attachment if needed, or non-existent
+        success = send_email_message(test_text, test_path, config)
+        if success:
+            logging.info("Test email sent successfully!")
+        else:
+            logging.error("Test email failed. Check your SMTP credentials and connection.")
         return
 
     if "--dry-run" in sys.argv:

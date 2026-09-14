@@ -12,16 +12,16 @@ env:
   LLM_PROVIDER: ${{ secrets.LLM_PROVIDER }}
   LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
   LLM_MODEL: ${{ secrets.LLM_MODEL }}
-  TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-  TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-  # Optional Email Delivery config, leaving blank gracefully skips email
-  EMAIL_ENABLED: ${{ secrets.EMAIL_ENABLED || 'false' }}
-  SMTP_HOST: ${{ secrets.SMTP_HOST }}
+  
+  EMAIL_ENABLED: ${{ secrets.EMAIL_ENABLED || 'true' }}
+  EMAIL_PROVIDER: ${{ secrets.EMAIL_PROVIDER || 'gmail' }}
+  SMTP_HOST: ${{ secrets.SMTP_HOST || 'smtp.gmail.com' }}
   SMTP_PORT: ${{ secrets.SMTP_PORT || '587' }}
   SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
   SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
   EMAIL_TO: ${{ secrets.EMAIL_TO }}
   EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
+  EMAIL_SUBJECT_PREFIX: ${{ secrets.EMAIL_SUBJECT_PREFIX || 'Daily Tech & AI Brief' }}
 
 jobs:
   build-and-deliver:

@@ -21,8 +21,8 @@ A fully free, automated daily script that gathers tech and AI news from free sou
 - `LLM_PROVIDER`: The LLM to use (`mock`, `gemini`, `groq`). Default is `mock`.
 - `LLM_API_KEY`: API key for the selected provider.
 - `LLM_MODEL`: The specific model to use (e.g., `gemini-1.5-pro`).
-- `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`: Config for Telegram delivery.
-- `EMAIL_ENABLED`, `SMTP_*`: Config for Email delivery.
+- `EMAIL_ENABLED`, `SMTP_*`: Config for Email delivery via Gmail (or other SMTP server).
+- `EMAIL_SUBJECT_PREFIX`: Prefix for the daily email subject.
 - `MAX_NEWS_ITEMS`: Max number of items to process daily.
 - `SUMMARY_WORDS_MIN`, `SUMMARY_WORDS_MAX`: Target word count for the summary.
 - `IDEA_COUNT`: Number of ideas to generate (default 10).
@@ -44,6 +44,21 @@ This repository includes a GitHub Actions workflow (`.github/workflows/daily-bri
 **Note on Timezones:**
 The GitHub Actions cron scheduler operates in **UTC** time. 
 For example, the default `0 9 * * *` runs at 9:00 AM UTC. If you want the brief delivered at 9:00 AM in your local timezone, you must convert your local time to UTC and update the cron string accordingly.
+
+## Gmail Delivery Setup
+
+To send the Daily Brief via Gmail, you must use a **Gmail App Password** rather than your actual email password.
+
+1. Go to your Google Account > **Security**.
+2. Enable **2-Step Verification** (required for App Passwords).
+3. Search for **App Passwords** in the Security settings.
+4. Create a new App Password (name it "Daily Tech Brief" or similar).
+5. Copy the generated 16-character password.
+6. In your `.env` or GitHub Secrets, set:
+   - `SMTP_USERNAME` = your full gmail address (e.g., `you@gmail.com`)
+   - `SMTP_PASSWORD` = the 16-character App Password (no spaces)
+   - `EMAIL_FROM` = your full gmail address
+   - `EMAIL_TO` = the destination email address (can be the same as your sending address)
 
 ## PDF Generation (Optional)
 
